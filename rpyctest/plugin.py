@@ -3,6 +3,10 @@
 
 [see more](https://docs.pytest.org/en/latest/reference.html#hooks)
 [flowchart](https://github.com/pytest-dev/pytest/issues/3261)
+
+# TODO
+custom markers: http://doc.pytest.org/en/latest/example/markers.html
+lazy fixtures: https://github.com/TvoroG/pytest-lazy-fixture/blob/master/pytest_lazyfixture.py
 """
 import itertools
 
@@ -11,7 +15,7 @@ from .fixtures import RpycManager
 
 def pytest_addhooks(pluginmanager):
     """https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_addhooks"""
-    from rpyctest import newhooks
+    from . import newhooks
     pluginmanager.add_hookspecs(newhooks)
 
 

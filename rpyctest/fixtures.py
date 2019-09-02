@@ -13,17 +13,28 @@ class RpycManager(object):
 
     def __init__(self, session, targets):
         self._session = session
+        self._fixtures = {}
         for target in targets:
-            setattr(self, f'_pytest_{target}', self._generate_fixture(target))
+            name = self._target_name(target)
+            fixture = self._generate_fixture(name, target)
+            setattr(self, f'_pytest_{name}', fixture)
+            self._fixtures[name] = target, fixture
 
-    def _generate_fixture(self, target):
+    def _generate_fixture(self, name, target):
+        # noinspection PyProtectedMember
+        if hasattr(target, 'fixture'):
+            return pytest.fixture(scope='session', name=name)(target.fixture)
         factory_hook = self._session.config.hook.pytest_target_factory
 
-        @pytest.fixture(scope='session', name=target)
-        def target_factory(pytestconfig):
-            return factory_hook(config=pytestconfig, target=target)
+        @pytest.fixture(scope='session', name=name)
+        def target_factory(request):
+            return factory_hook(request=request, name=name, target=target)
 
         return target_factory
+
+    @staticmethod
+    def _target_name(target):
+        return target.name if hasattr(target, 'name') else str(target)
 
 
 def group_filter(scope="function", ids=None, name=None):
